@@ -1,4 +1,4 @@
-import { MioFunction } from '../../../functions.js'
+import { MioFunction } from '../../lib/function.js' 
 import { createProdia } from 'prodia/v2'
 
 export default class drawPainting extends MioFunction {

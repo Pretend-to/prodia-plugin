@@ -1,4 +1,4 @@
-import Plugin from '../../plugin.js' // 假设 utils.js 在 lib 目录下
+import Plugin from '../../lib/plugin.js' 
 import path from 'path'
 import { fileURLToPath } from 'url' // 导入 fileURLToPath
 
