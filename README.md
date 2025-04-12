@@ -4,6 +4,8 @@
 
 Prodia Plugin 是一个为 *MioChat* 设计的，用于调用 *Prodia API* 生成图片的插件。
 
+> 如果您并不知道什么是 MioChat , 请先访问 MioChat 项目地址 : [https://github.com/Pretend-to/mio-chat-backend](https://github.com/Pretend-to/mio-chat-backend)
+
 ## 安装
 
 ```bash
