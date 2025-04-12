@@ -13,6 +13,8 @@ Prodia Plugin 是一个为 *MioChat* 设计的，用于调用 *Prodia API* 生�
 cd plugins
 # 克隆仓库
 git clone https://github.com/Pretend-to/prodia-plugin
+# 移动到插件目录下
+cd prodia-plugin
 # 安装依赖
 pnpm i 
 ```
