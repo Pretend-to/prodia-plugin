@@ -2,7 +2,7 @@ import { MioFunction } from '../../../lib/function.js'
 import { createProdia } from 'prodia/v2'
 
 export default class drawPainting extends MioFunction {
-  constructor() {
+  constructor(plugin) {
     super({
       name: 'drawPainting',
       description: 'A tool that help you to draw a painting. You can adjust the style, quality and orientation of the painting.The default config is landscape,fast.finally,show user the picture in markdown format like ![image](url).',
@@ -26,7 +26,7 @@ export default class drawPainting extends MioFunction {
         },
         required: ['prompt']
       }
-    })
+    },plugin)
     this.func = this.drawPainting
   }
 
