@@ -1,36 +1,38 @@
 import { MioFunction } from '../../../lib/function.js' 
 import { createProdia } from 'prodia/v2'
 
-export default class drawPainting extends MioFunction {
+export default class editImage extends MioFunction {
   constructor() {
     super({
       name: 'drawPainting',
-      description: 'A tool that help you to draw a painting. You can adjust the style, quality and orientation of the painting.The default config is landscape,fast.finally,show user the picture in markdown format like ![image](url).',
+      description: 'A tool that help you to edit or merge some Image. Finally,show user the picture in markdown format like ![image](url).',
       parameters: {
         type: 'object',
         properties: {
           prompt: {
             type: 'string',
-            description: 'The prompt for the painting.',
+            description: 'The prompt for the editing.',
           },
-          orientation: {
-            type:'string',
-            description: 'The orientation of the painting: landscape(横), portrait(竖), square(方)',
-            enum: ['landscape', 'portrait','square']
+          source: {
+            type: 'array',
+            items: {
+              type: 'string',
+            },
+            description: 'The source image urls for the editing.',
           },
-          quality: {
-            type:'string',
-            description: 'The quality of the painting: fast(快速) or high(优质)',
-            enum: ['fast', 'high']
-          }  
+          model: {
+            type: 'string',
+            description: 'The image model for the editing.',
+            enum: ['nano-banana', 'qwen.image-edit.lightning', 'seedream-4' , 'flux-kontext.pro']
+          },
         },
-        required: ['prompt']
+        required: ['prompt','source']
       }
     })
-    this.func = this.drawPainting
+    this.func = this.editImage
   }
 
-  async drawPainting(e) {
+  async editImage(e) {
     const { token } = this.getPluginConfig()
 
     if (!token) {
@@ -38,23 +40,15 @@ export default class drawPainting extends MioFunction {
     }
 
     const prompt = e.params.prompt
-    const orientation = e.params.orientation || 'landscape'
-    const quality = e.params.quality || 'fast'
-    const url = e.user.origin
-    // 设置图片尺寸
-    let width = 1024
-    let height = 768
-    switch (orientation.toLowerCase()) {
-      case 'portrait':
-        width = 768
-        height = 1024
-        break
-      case 'square':
-        width = 1024
-        height = 1024
-        break
-      // landscape为默认值，保持原有尺寸
-    }
+    const source = e.params.source
+    const model = e.params.model || 'nano-banana'
+
+    const sourceImageBuffers = await Promise.all(source.map(async (url) => {
+      const response = await fetch(url)
+      const buffer = await response.arrayBuffer()
+      return buffer
+    }))
+
     const prodia = createProdia({
       token
     })
@@ -65,15 +59,12 @@ export default class drawPainting extends MioFunction {
     while (retryCount < maxRetries) {
       try {
         const job = await prodia.job({
-          'type': quality === 'high' ? 'inference.flux.pro.txt2img.v1' : 'inference.flux.dev.txt2img.v1',
+          'type': `interface.${model}.img2img.v1`,
           'config': {
             'prompt': prompt,
-            'guidance_scale': 3,
-            'steps': 25,
-            'width': width,
-            'height': height
           }
         }, {
+          input: sourceImageBuffers,
           accept: 'image/jpeg'
         })
   
