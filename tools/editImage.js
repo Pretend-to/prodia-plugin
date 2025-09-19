@@ -42,6 +42,7 @@ export default class editImage extends MioFunction {
     const prompt = e.params.prompt
     const source = e.params.source
     const model = e.params.model || 'nano-banana'
+    const url = e.user.origin
 
     const sourceImageBuffers = await Promise.all(source.map(async (url) => {
       const response = await fetch(url)
