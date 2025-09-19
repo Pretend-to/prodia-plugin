@@ -11,7 +11,7 @@ export default class editImage extends MioFunction {
         properties: {
           prompt: {
             type: 'string',
-            description: 'The prompt for the editing.',
+            description: 'The prompt for the editing, must be in English.',
           },
           source: {
             type: 'array',
