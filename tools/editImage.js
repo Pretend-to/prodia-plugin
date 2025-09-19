@@ -59,7 +59,7 @@ export default class editImage extends MioFunction {
     while (retryCount < maxRetries) {
       try {
         const job = await prodia.job({
-          'type': `interface.${model}.img2img.v1`,
+          'type': `inference.${model}.img2img.v1`,
           'config': {
             'prompt': prompt,
           }
