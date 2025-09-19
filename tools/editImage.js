@@ -4,14 +4,14 @@ import { createProdia } from 'prodia/v2'
 export default class editImage extends MioFunction {
   constructor() {
     super({
-      name: 'drawPainting',
+      name: 'editImage',
       description: 'A tool that help you to edit or merge some Image. Finally,show user the picture in markdown format like ![image](url).',
       parameters: {
         type: 'object',
         properties: {
           prompt: {
             type: 'string',
-            description: 'The prompt for the editing, must be in English.',
+            description: 'The prompt for the editing, default to be in English if the user does not specify a language.',
           },
           source: {
             type: 'array',
