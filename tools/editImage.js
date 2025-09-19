@@ -64,7 +64,7 @@ export default class editImage extends MioFunction {
             'prompt': prompt,
           }
         }, {
-          input: sourceImageBuffers,
+          inputs: sourceImageBuffers,
           accept: 'image/jpeg'
         })
   
