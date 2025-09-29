@@ -4,19 +4,15 @@
 
 Prodia Plugin 是一个为 *MioChat* 设计的，用于调用 *Prodia API* 生成图片的插件。
 
-> 如果您并不知道什么是 MioChat , 请先访问 MioChat 项目地址 : [https://github.com/Pretend-to/mio-chat-backend](https://github.com/Pretend-to/mio-chat-backend)
+> 如果您并不知道什么是 MioChat , 请先访问 MioChat 项目地址 : [MioChat](https://github.com/Pretend-to/mio-chat-backend)
 
 ## 安装
 
 ```bash
-# 移动到 MioChat 的插件目录下
-cd plugins
-# 克隆仓库
-git clone https://github.com/Pretend-to/prodia-plugin
-# 移动到插件目录下
-cd prodia-plugin
+# 克隆到插件目录
+git clone https://github.com/Pretend-to/prodia-plugin plugins/prodia-plugin
 # 安装依赖
-pnpm i 
+pnpm --filter prodia-plugin install
 ```
 
 ## 使用
@@ -31,3 +27,4 @@ pnpm i
 目前支持的工具有：
 
 - `flux-pro`、`flux-dev` 模型绘图。
+- `nano banana`、 `qwen-edit`、`seedream-4`、`flux-kontext` 模型改图。
