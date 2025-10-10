@@ -5,7 +5,7 @@ export default class drawSeedream4 extends MioFunction {
   constructor() {
     super({
       name: 'drawSeedream4',
-      description: 'Use seedream-4 to generate images from text prompts. Provide a ratio and prompt; the tool maps ratio to recommended resolution (max dimension 2048). Returns { url } to the generated image.',
+      description: 'Use seedream-4 to generate images from text prompts. Provide a ratio and prompt; the tool maps ratio to recommended resolution (max dimension 2048). Returns { url } to the generated image.Response user with the picture in markdown format like ![image](url).',
       parameters: {
         type: 'object',
         properties: {
@@ -84,7 +84,7 @@ export default class drawSeedream4 extends MioFunction {
       return { url: result }
     } catch (error) {
       console.error('drawSeedream4 failed', {
-        prompt: prompt?.slice?.(0, 120),
+        prompt,
         ratio,
         width,
         height,
