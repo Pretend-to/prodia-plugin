@@ -51,7 +51,7 @@ export default class drawSeedream4 extends MioFunction {
     }
 
     const prompt = e.params.prompt
-    const ratio = e.params.ratio || '1:1'
+    const ratio = e.params.ratio || '3:4'
     const url = e.user.origin
 
     const { width, height } = drawSeedream4.ratioToResolution(ratio)
