@@ -54,38 +54,43 @@ export default class editImage extends MioFunction {
       token
     })
   
-    const maxRetries = 3 // 设置最大重试次数
-    let retryCount = 0
-  
-    while (retryCount < maxRetries) {
-      try {
-        const job = await prodia.job({
-          'type': `inference.${model}.img2img.v1`,
-          'config': {
-            'prompt': prompt,
-          }
-        }, {
-          inputs: sourceImageBuffers,
-          accept: 'image/jpeg'
-        })
-  
-        const image = await job.arrayBuffer()
-        const buffer = Buffer.from(image)
-        const result = await this.getImgUrlFromBuffer(url, buffer)
-  
-        return {
-          url: result
+    try {
+      const job = await prodia.job({
+        'type': `inference.${model}.img2img.v1`,
+        'config': {
+          'prompt': prompt,
         }
-      } catch (error) {
-        retryCount++
-        console.error(`尝试第 ${retryCount} 次重试... 错误信息:`, error)
-        //  可以添加延迟，避免过于频繁的重试
-        await new Promise(resolve => setTimeout(resolve, 1000 * retryCount)) // 延迟1秒, 2秒, 3秒
+      }, {
+        inputs: sourceImageBuffers,
+        accept: 'image/jpeg'
+      })
+      // 验证 job 返回是否有效
+      if (!job || typeof job.arrayBuffer !== 'function') {
+        console.error('editImage: invalid job returned from prodia', { job })
+        const err = new Error('编辑失败：Prodia 返回无效响应')
+        try { err.cause = job } catch (e) { /* ignore */ }
+        throw err
       }
+
+      const image = await job.arrayBuffer()
+      const buffer = Buffer.from(image)
+      const result = await this.getImgUrlFromBuffer(url, buffer)
+
+      return {
+        url: result
+      }
+    } catch (error) {
+      console.error('editImage failed', {
+        prompt: prompt?.slice?.(0, 120),
+        model,
+        sourceCount: Array.isArray(source) ? source.length : 0,
+        origin: url,
+        message: error?.message
+      }, error)
+      const err = new Error('编辑失败，请稍后重试: ' + (error && error.message ? error.message : '未知错误'))
+      try { err.cause = error } catch (e) { /* ignore if not supported */ }
+      throw err
     }
-    // 如果重试达到最大次数仍然失败，抛出错误或者返回一个默认值
-    console.error(`重试 ${maxRetries} 次后仍然失败，停止重试.`)
-    throw new Error('绘图失败，请稍后重试')
     // 或者 return { url: '默认图片URL或错误提示' };
   }
 }
