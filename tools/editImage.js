@@ -1,6 +1,15 @@
 import { MioFunction } from '../../../lib/function.js' 
 import { createProdia } from 'prodia/v2'
 
+const editorModelsMap = {
+  'nano-banana': 'inference.nano-banana.img2img.v2',
+  'qwen-fast': 'inference.qwen.image-edit.plus.lightning.img2img.v2',
+  'qwen-quality': 'inference.qwen.image-edit.plus.img2img.v2',
+  'seedream-4': 'inference.seedream-4.img2img.v1',
+  'gemini-3': 'inference.gemini-3-pro.img2img.v1',
+  'flux': 'inference.flux-kontext.pro.txt2img.v2'
+}
+
 export default class editImage extends MioFunction {
   constructor() {
     super({
@@ -23,10 +32,10 @@ export default class editImage extends MioFunction {
           model: {
             type: 'string',
             description: 'The image model for the editing.',
-            enum: ['nano-banana', 'qwen.image-edit.lightning', 'seedream-4' , 'flux-kontext.pro']
+            enum: Object.keys(editorModelsMap),
           },
         },
-        required: ['prompt','source']
+        required: ['prompt','source', 'model']
       }
     })
     this.func = this.editImage
@@ -56,7 +65,7 @@ export default class editImage extends MioFunction {
   
     try {
       const job = await prodia.job({
-        'type': `inference.${model}.img2img.v1`,
+        'type': editorModelsMap[model],
         'config': {
           'prompt': prompt,
         }
