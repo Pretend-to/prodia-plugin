@@ -1,4 +1,4 @@
-import { MioFunction } from '../../../lib/function.js' 
+import { MioFunction } from '../../../lib/function.js'
 import { createProdia } from 'prodia/v2'
 
 const editorModelsMap = {
@@ -34,8 +34,22 @@ export default class editImage extends MioFunction {
             description: 'The image model for the editing.',
             enum: Object.keys(editorModelsMap),
           },
+          aspect_ratio: {
+            type: 'string',
+            default: '1:1',
+            enum: [
+              '1:1', '2:3', '3:2', '3:4', '4:3', '4:5', '5:4', '9:16', '16:9', '21:9'
+            ],
+            description: 'Aspect ratio of output image.'
+          },
+          resolution: {
+            type: 'string',
+            default: '1K',
+            enum: ['1K', '2K', '4K'],
+            description: 'Resolution/image size of output. Use uppercase K.'
+          }
         },
-        required: ['prompt','source', 'model']
+        required: ['prompt', 'source', 'model']
       }
     })
     this.func = this.editImage
@@ -51,6 +65,8 @@ export default class editImage extends MioFunction {
     const prompt = e.params.prompt
     const source = e.params.source
     const model = e.params.model || 'nano-banana'
+    const aspectRatio = e.params.aspect_ratio || '1:1'
+    const resolution = e.params.resolution || '2K'
     const url = e.user.origin
 
     const sourceImageBuffers = await Promise.all(source.map(async (url) => {
@@ -62,12 +78,14 @@ export default class editImage extends MioFunction {
     const prodia = createProdia({
       token
     })
-  
+
     try {
       const job = await prodia.job({
         'type': editorModelsMap[model],
         'config': {
           'prompt': prompt,
+          'aspect_ratio': aspectRatio,
+          'resolution': resolution
         }
       }, {
         inputs: sourceImageBuffers,
