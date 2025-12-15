@@ -40,13 +40,13 @@ export default class editImage extends MioFunction {
             enum: [
               '1:1', '2:3', '3:2', '3:4', '4:3', '4:5', '5:4', '9:16', '16:9', '21:9'
             ],
-            description: 'Aspect ratio of output image.'
+            description: 'Only Avaliable With Model Gemini 3. Aspect ratio of output image. Only Avaliable With Model Gemini 3.'
           },
           resolution: {
             type: 'string',
             default: '1K',
             enum: ['1K', '2K', '4K'],
-            description: 'Resolution/image size of output. Use uppercase K.'
+            description: 'Only Avaliable With Model Gemini 3. Resolution/image size of output. Use uppercase K.'
           }
         },
         required: ['prompt', 'source', 'model']
@@ -79,14 +79,19 @@ export default class editImage extends MioFunction {
       token
     })
 
+    const jobConfig = {
+      prompt,
+      ...(model === 'gemini-3' && {
+        aspect_ratio: aspectRatio,
+        resolution
+      })
+    }
+
+
     try {
       const job = await prodia.job({
         'type': editorModelsMap[model],
-        'config': {
-          'prompt': prompt,
-          'aspect_ratio': aspectRatio,
-          'resolution': resolution
-        }
+        'config': jobConfig
       }, {
         inputs: sourceImageBuffers,
         accept: 'image/jpeg'
