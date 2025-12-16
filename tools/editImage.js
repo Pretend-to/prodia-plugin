@@ -38,9 +38,9 @@ export default class editImage extends MioFunction {
             type: 'string',
             default: '1:1',
             enum: [
-              '1:1', '2:3', '3:2', '3:4', '4:3', '4:5', '5:4', '9:16', '16:9', '21:9'
+              'default', '1:1', '2:3', '3:2', '3:4', '4:3', '4:5', '5:4', '9:16', '16:9', '21:9'
             ],
-            description: 'Only Avaliable With Model Gemini 3. Aspect ratio of output image. Only Avaliable With Model Gemini 3.'
+            description: 'Only Avaliable With Model Gemini 3. Aspect ratio of output image.Default means use the same aspect ratio as source image,and this "default" option is recommended.'
           },
           resolution: {
             type: 'string',
