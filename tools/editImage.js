@@ -1,5 +1,6 @@
 import { MioFunction } from '../../../lib/function.js'
 import { createProdia } from 'prodia/v2'
+import sizeOf from 'image-size'
 
 const editorModelsMap = {
   'nano-banana': 'inference.nano-banana.img2img.v2',
@@ -9,6 +10,8 @@ const editorModelsMap = {
   'gemini-3': 'inference.gemini-3-pro.img2img.v1',
   'flux': 'inference.flux-kontext.pro.txt2img.v2'
 }
+
+const aspectRatioOptions = ['1:1', '4:3', '3:4', '16:9', '9:16', '21:9', '9:21']
 
 export default class editImage extends MioFunction {
   constructor() {
@@ -38,7 +41,8 @@ export default class editImage extends MioFunction {
             type: 'string',
             default: '1:1',
             enum: [
-              'default', '1:1', '2:3', '3:2', '3:4', '4:3', '4:5', '5:4', '9:16', '16:9', '21:9'
+              'default',
+              ...aspectRatioOptions
             ],
             description: 'Only Avaliable With Model Gemini 3. Aspect ratio of output image.Default means use the same aspect ratio as source image,and this "default" option is recommended.'
           },
@@ -65,7 +69,7 @@ export default class editImage extends MioFunction {
     const prompt = e.params.prompt
     const source = e.params.source
     const model = e.params.model || 'nano-banana'
-    const aspectRatio = e.params.aspect_ratio || '1:1'
+    let aspectRatio = e.params.aspect_ratio || '1:1'
     const resolution = e.params.resolution || '2K'
     const url = e.user.origin
 
@@ -74,6 +78,21 @@ export default class editImage extends MioFunction {
       const buffer = await response.arrayBuffer()
       return buffer
     }))
+
+    // 如果是 Gemini 3 且用户没有指定具体比例（'default' 或空），则根据第一张源图自适应比例
+    if (model === 'gemini-3' && (!aspectRatio || aspectRatio === 'default')) {
+      try {
+        if (Array.isArray(sourceImageBuffers) && sourceImageBuffers.length > 0) {
+          aspectRatio = this.getSelfAdaptResolution(sourceImageBuffers[0])
+          console.info('editImage: auto selected aspect_ratio ->', aspectRatio)
+        } else {
+          aspectRatio = '1:1'
+        }
+      } catch (err) {
+        console.error('editImage: failed to auto-detect aspect ratio', err)
+        aspectRatio = '1:1'
+      }
+    }
 
     const prodia = createProdia({
       token
@@ -124,5 +143,43 @@ export default class editImage extends MioFunction {
       throw err
     }
     // 或者 return { url: '默认图片URL或错误提示' };
+  }
+
+  /**
+   * 根据图片 buffer 自动判断最接近的长宽比例
+   * @param {ArrayBuffer|Uint8Array|Buffer} imageBuffer 
+   * @returns {string} 最接近的长宽比例字符串，例如 '4:3'
+   */
+  getSelfAdaptResolution(imageBuffer) {
+    // 解析图片的长宽比例，返回最接近的 aspect ratio（例如 '4:3'）
+    try {
+      // imageBuffer 可能是 ArrayBuffer、Uint8Array 或 Buffer
+      const buf = Buffer.isBuffer(imageBuffer) ? imageBuffer : Buffer.from(imageBuffer)
+      const { width, height } = sizeOf(buf)
+      if (!width || !height) return '1:1'
+
+      const imgRatio = width / height
+
+      // 计算候选比例中与图片比例最接近的项
+      let best = aspectRatioOptions[0]
+      let bestDiff = Infinity
+
+      for (const cand of aspectRatioOptions) {
+        const parts = cand.split(':').map(Number)
+        if (parts.length !== 2 || parts.some(Number.isNaN)) continue
+        const candRatio = parts[0] / parts[1]
+        // 相对差值，避免宽高数值差异带来的偏差
+        const diff = Math.abs(imgRatio - candRatio) / Math.max(imgRatio, candRatio)
+        if (diff < bestDiff) {
+          bestDiff = diff
+          best = cand
+        }
+      }
+
+      return best
+    } catch (err) {
+      console.error('getSelfAdaptResolution failed', err)
+      return '1:1'
+    }
   }
 }

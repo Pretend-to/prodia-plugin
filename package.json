@@ -11,6 +11,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "prodia": "^1.5.0"
+    "prodia": "^1.5.0",
+    "image-size": "^1.0.0"
   }
 }
